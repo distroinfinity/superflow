@@ -2,10 +2,9 @@ import { TOKEN } from "@/types/token";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import TokenList from "./TokenList";
 
-const escapeSymbol = (symbol: string) => {
-  return symbol ? symbol.replace("$", "") : "";
-};
+
 
 const PortfolioTable = () => {
   const { isConnected } = useAccount()
@@ -14,6 +13,7 @@ const PortfolioTable = () => {
   const [networth, setNetworth] = useState<number>(0);
   const [hideRugs, setHideRugs] = useState(true);
   const hostUrl = process.env.NEXT_PUBLIC_HOST_URL;
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     if (address) {
@@ -87,7 +87,7 @@ const PortfolioTable = () => {
               </div>
               <div className="p-2.5 text-center xl:p-5">
                 <h5 className="text-sm font-medium uppercase xsm:text-base">
-                  Holding
+                  Supply
                 </h5>
               </div>
               <div className="p-2.5 text-center xl:p-5">
@@ -97,75 +97,12 @@ const PortfolioTable = () => {
               </div>
               <div className="hidden p-2.5 text-center sm:block xl:p-5">
                 <h5 className="text-sm font-medium uppercase xsm:text-base">
-                  Value
+                  Liquidity
                 </h5>
               </div>
             </div>
 
-            {filteredTokens
-              .sort((a, b) => {
-                const aValue =
-                  (a.token_info.price_info.price_per_token *
-                    a.token_info.balance) /
-                  Math.pow(10, a.token_info.decimals);
-                const bValue =
-                  (b.token_info.price_info.price_per_token *
-                    b.token_info.balance) /
-                  Math.pow(10, b.token_info.decimals);
-                return bValue - aValue;
-              })
-              .map((token, key) => {
-                const name = token.content.metadata.name;
-                const symbol = escapeSymbol(token.token_info.symbol);
-                const balance = (
-                  token.token_info.balance /
-                  Math.pow(10, token.token_info.decimals)
-                ).toFixed(0);
-                const price = token.token_info.price_info
-                  ? token.token_info.price_info.price_per_token
-                  : 0;
-                const value = price * Number(balance);
-                return (
-                  <div
-                    className={`grid grid-cols-3 sm:grid-cols-4 ${
-                      key === filteredTokens.length - 1
-                        ? ""
-                        : "border-b border-stroke dark:border-strokedark"
-                    }`}
-                    key={key}
-                  >
-                    <div className="flex items-center gap-3 p-2.5 xl:p-5">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src={token.content.links.image}
-                          alt={token.content.metadata.name}
-                          width={48}
-                          height={48}
-                        />
-                      </div>
-                      <p className="hidden text-black dark:text-white sm:block">
-                        {name} {symbol ? `(${symbol})` : ""}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-center p-2.5 xl:p-5">
-                      <p className="text-black dark:text-white">
-                        {balance} {symbol}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-center p-2.5 xl:p-5">
-                      <p className="text-meta-3">${price.toFixed(4)}</p>
-                    </div>
-
-                    <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
-                      <p className="text-black dark:text-white">
-                        ${value.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+            <TokenList filteredTokens={filteredTokens}/>
           </div>
         </>
       ) : (
