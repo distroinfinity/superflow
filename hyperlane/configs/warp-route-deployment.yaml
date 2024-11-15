@@ -1,0 +1,50 @@
+arbitrumsepolia:
+  interchainSecurityModule:
+    modules:
+      - relayer: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: trustedRelayerIsm
+      - domains: {}
+        owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: defaultFallbackRoutingIsm
+    threshold: 1
+    type: staticAggregationIsm
+  isNft: false
+  mailbox: "0x598facE78a4302f11E3de0bee1894Da0b2Cb71F8"
+  owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  proxyAdmin:
+    owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  token: "0x2b622D678380e41B2e0aed16e70Ebc348d71DB65"
+  type: collateral
+basesepolia:
+  interchainSecurityModule:
+    modules:
+      - relayer: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: trustedRelayerIsm
+      - domains: {}
+        owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: defaultFallbackRoutingIsm
+    threshold: 1
+    type: staticAggregationIsm
+  isNft: false
+  mailbox: "0x6966b0E55883d49BFB24539356a2f8A673E02039"
+  owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  proxyAdmin:
+    owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  type: synthetic
+optimismsepolia:
+  interchainSecurityModule:
+    modules:
+      - relayer: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: trustedRelayerIsm
+      - domains: {}
+        owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+        type: defaultFallbackRoutingIsm
+    threshold: 1
+    type: staticAggregationIsm
+  isNft: false
+  mailbox: "0x6966b0E55883d49BFB24539356a2f8A673E02039"
+  owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  proxyAdmin:
+    owner: "0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB"
+  type: synthetic
+
