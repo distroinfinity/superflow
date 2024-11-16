@@ -50,7 +50,7 @@ async function main() {
     var amount1 = ethers.utils.parseUnits(process.env.QUOTE_TOKEN_AMOUNT.toString(), 18);
     var chainID = Number(process.env.CHAINID)
 
-    console.log("Started");
+    // console.log("Started");
     const uniswapFactoryContract = await getContract(uniswapFactoryAddress, UNISWAP_FACTOR_ABI);
     const token0 = await getContract(token0Address, ERC20_ABI);
     const token1 = await getContract(token1Address, ERC20_ABI);
@@ -58,18 +58,18 @@ async function main() {
     await mintAndApprove(amount0, amount1, token0Address, token1Address, npmca);
 
     var poolAddress = await uniswapFactoryContract.getPool(token0Address, token1Address, fee);
-    console.log("Pool addres is: ", poolAddress);
+    console.log(poolAddress);
     var deployer = await hreEthers.getSigner();
     if (poolAddress === '0x0000000000000000000000000000000000000000') {
-        console.log("Creating pool");
+        // console.log("Creating pool");
         poolAddress = await createPool(uniswapFactoryContract, token0Address, token1Address, fee);
 
         await initializePool(poolAddress, price, deployer);
     }
     await addLiquidityToPool(poolAddress, deployer, chainID, token0Decimals, token1Decimals, token0, token1, amount0, amount1, fee, npmca);
-    console.log("Added liquidity");
+    // console.log("Added liquidity");
 
-    console.log("Creating pool done");
+    // console.log("Creating pool done");
 }
 
 function encodePriceSqrt(token1Price, token0Price) {
@@ -128,7 +128,7 @@ async function createPool(uniswapFactory_contract, token1Address, token2Address,
     const poolAdd = await uniswapFactory_contract.getPool(token1Address, token2Address, fee, {
         gasLimit: 3000000,
     });
-    console.log('Pool address', poolAdd);
+    // console.log('Pool address', poolAdd);
     return poolAdd;
 }
 
@@ -139,7 +139,7 @@ async function initializePool(poolAdd, price, signer) {
         gasLimit: 3000000,
     });
     await txs.wait();
-    console.log('Pool Initialized');
+    // console.log('Pool Initialized');
 }
 
 async function addLiquidityToPool(
@@ -198,10 +198,10 @@ async function addLiquidityToPool(
         from: deployer.address,
         gasLimit: 10000000
     };
-    console.log('Transacting');
+    // console.log('Transacting');
     const txRes = await deployer.sendTransaction(transaction);
     await txRes.wait();
-    console.log('Added liquidity');
+    // console.log('Added liquidity');
 }
 
 main().catch(console.log);
