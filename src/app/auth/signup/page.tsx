@@ -31,7 +31,7 @@ const SignUp: React.FC = () => {
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={"/images/logo/logo.png"}
                   alt="Logo"
                   width={176}
                   height={32}

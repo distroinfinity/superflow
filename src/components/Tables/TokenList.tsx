@@ -1,8 +1,23 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { TOKEN } from "@/types/token";
-const infoIcon = (
-  <Image src={"/images/logo/info.svg"} alt="info icon" width={30} height={30} />
+import { formatNumber, formatSlug } from "@/utils/common";
+
+const popOut = (
+  <Image
+    src={"/images/icon/popout.svg"}
+    alt="info icon"
+    width={10}
+    height={10}
+  />
+);
+const blockscoutLogo = (
+  <Image
+    src={"/images/icon/blockscoutlogo.svg"}
+    alt="blockscout logo"
+    width={20}
+    height={20}
+  />
 );
 // Utility function to escape symbols like "$"
 const escapeSymbol = (symbol: string) => {
@@ -11,6 +26,7 @@ const escapeSymbol = (symbol: string) => {
 
 type TokenListProps = {
   filteredTokens: TOKEN[];
+  address: string;
 };
 enum SupportedChains {
   ETH = "Ethereum",
@@ -34,42 +50,59 @@ const imageUrls: Record<SupportedChains, string> = {
   [SupportedChains.OPTIMISM]:
     "https://assets.coingecko.com/coins/images/25244/standard/Optimism.png?1696524385",
 };
+const explorerUrls: Record<SupportedChains, string> = {
+  [SupportedChains.ETH]: "https://eth.blockscout.com/address",
+  [SupportedChains.MANTLE]: "https://explorer.mantle.xyz/",
+  [SupportedChains.ARB]: "https://arbitrum.blockscout.com/",
+  [SupportedChains.SCROLL]: "https://l1sload-blockscout.scroll.io/",
+  [SupportedChains.BASE]: "https:/base.blockscout.com/",
+  [SupportedChains.OPTIMISM]: "https:/optimism.blockscout.com/",
+};
 
 const getChildren = (tokenId: string) => {
   const childrenData = [
     {
       chain: SupportedChains.ARB,
       circulatingSupply: 1000000,
+      price: 1.3,
+      pairAddress: "0x1234567890",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.MANTLE,
       circulatingSupply: 1000000,
+      price: 1.3,
+      pairAddress: "0x1234567890",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.BASE,
       circulatingSupply: 1000000,
+      price: 1.3,
+      pairAddress: "0x8470820830",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.ETH,
       circulatingSupply: 1000000,
+      price: 1.3,
+      pairAddress: "0x2930020930",
       liquidity: 1000000,
     },
   ];
 
-  // Map through the data to dynamically generate children with index-based IDs
   return childrenData.map((child, index) => ({
     id: `${tokenId}-child-${index + 1}`,
     chain: child.chain,
     chainLogoUrl: imageUrls[child.chain],
     circulatingSupply: child.circulatingSupply,
     liquidity: child.liquidity,
+    price: child.price,
+    pairAddress: child.pairAddress,
   }));
 };
 
-const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
+const TokenList: React.FC<TokenListProps> = ({ filteredTokens, address }) => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
   return (
@@ -87,9 +120,8 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
         .map((token, key) => {
           const name = token.content.metadata.name;
           const symbol = escapeSymbol(token.token_info.symbol);
-          const balance = (
-            token.token_info.balance / Math.pow(10, token.token_info.decimals)
-          ).toFixed(0);
+          const balance =
+            token.token_info.balance / Math.pow(10, token.token_info.decimals);
           const price = token.token_info.price_info
             ? token.token_info.price_info.price_per_token
             : 0;
@@ -101,9 +133,7 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
           const childrenCount = children.length;
 
           // Calculate dynamic height based on the number of children
-          const expandedHeight = isExpanded
-            ? `calc(100% + ${childrenCount * 50}px)`
-            : "auto";
+          const expandedHeight = isExpanded ? "calc(100%)" : "auto";
 
           return (
             <div
@@ -115,7 +145,7 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
               key={key}
               style={{
                 height: expandedHeight,
-                backgroundColor: isExpanded ? "#3260a8" : "transparent",
+                backgroundColor: isExpanded ? "#354454" : "transparent",
               }}
               onClick={() => setExpandedRow(isExpanded ? null : key)}
             >
@@ -123,41 +153,39 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
                 <div className="flex-shrink-0">
                   <Image
                     src={token.content.links.image}
-                    alt={token.content.metadata.name || "Token Image"}
+                    alt={token.content.metadata.name}
                     width={48}
                     height={48}
                   />
                 </div>
                 <p className="hidden text-black dark:text-white sm:block">
-                  {name} {symbol ? `(${symbol})` : ""}
+                  {name} {symbol ? `(${symbol})` : ""} {}
+                  <p className="text-meta-3">${price.toFixed(4)}</p>
                 </p>
               </div>
 
+              <div className="flex items-center justify-center p-2.5 xl:p-5">
+                <p className="text-black dark:text-white">{""}</p>
+              </div>
               <div className="flex items-center justify-center p-2.5 xl:p-5">
                 <p className="text-black dark:text-white">
-                  {balance} {symbol}
+                  {formatNumber(balance)} {symbol}
                 </p>
               </div>
-
-              <div className="flex items-center justify-center p-2.5 xl:p-5">
-                <p className="text-meta-3">${price.toFixed(4)}</p>
-              </div>
-
               <div className="hidden items-center justify-center p-2.5 sm:flex xl:p-5">
                 <p className="text-black dark:text-white">
-                  ${value.toFixed(2)}
+                  ${value.toFixed(2)} / {formatNumber(price * balance)}
                 </p>
               </div>
 
-              {/* Expanded Section - Children */}
               {isExpanded && (
-                <div className="bg-gray-100 dark:bg-gray-800 col-span-4 p-4">
+                <div className="bg-gray-100 dark:bg-gray-800 col-span-4 p-0.5">
                   {children.map((child) => (
                     <div
                       key={child.id}
                       className="grid grid-cols-4 items-center gap-4 border-b p-2 last:border-none dark:border-strokedark"
                     >
-                      <div className="justify-left flex items-center gap-3">
+                      <div className="justify-left flex items-center gap-2 pl-5">
                         <img
                           src={child.chainLogoUrl}
                           width={20}
@@ -169,17 +197,28 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens }) => {
                           {child.chain}
                         </p>
                       </div>
+                      <a
+                        href={`${explorerUrls[child.chain]}/${formatSlug(child.pairAddress)}/${child.pairAddress}`}
+                        className="text-center text-black hover:underline dark:text-white"
+                      >
+                        {`${child.pairAddress.slice(0, 3)}...${child.pairAddress.slice(-3)}`}
+                      </a>
 
                       <p className="text-center text-black dark:text-white">
-                        {child.circulatingSupply} {symbol}
+                        {formatNumber(child.circulatingSupply)} {symbol}
                       </p>
 
-                      <p className="text-center text-black dark:text-white">
-                        1
-                      </p>
-
-                      <p className="text-center text-black dark:text-white">
-                        ${child.liquidity.toLocaleString()} {infoIcon}
+                      <p className="flex items-center justify-center gap-3 text-center text-black dark:text-white">
+                        ${formatNumber(child.liquidity)} / $
+                        {formatNumber(child.price * child.circulatingSupply)}
+                        <a
+                          className="invert"
+                          href={`${explorerUrls[child.chain]}/${formatSlug(address)}/(address)}`}
+                          target="_blank"
+                        >
+                          {popOut}
+                        </a>
+                        {blockscoutLogo}
                       </p>
                     </div>
                   ))}

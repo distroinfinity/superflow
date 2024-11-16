@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import TokenList from "./TokenList";
 
-
-
 const PortfolioTable = () => {
-  const { isConnected } = useAccount()
-  const address = "CUY2VmyW7hG7wumtJdAfuFHht3AD96srQMcDHNhsqznc"
+  const { isConnected } = useAccount();
+  const address = "CUY2VmyW7hG7wumtJdAfuFHht3AD96srQMcDHNhsqznc";
   const [tokens, setTokens] = useState<TOKEN[] | []>([]);
   const [networth, setNetworth] = useState<number>(0);
   const [hideRugs, setHideRugs] = useState(true);
@@ -75,7 +73,6 @@ const PortfolioTable = () => {
             <h3 className="text-lg text-black dark:text-white">
               Net Value : ${networth.toFixed(2)}
             </h3>
-
           </div>
 
           <div className="flex flex-col">
@@ -90,19 +87,14 @@ const PortfolioTable = () => {
                   Supply
                 </h5>
               </div>
-              <div className="p-2.5 text-center xl:p-5">
-                <h5 className="text-sm font-medium uppercase xsm:text-base">
-                  Price
-                </h5>
-              </div>
               <div className="hidden p-2.5 text-center sm:block xl:p-5">
                 <h5 className="text-sm font-medium uppercase xsm:text-base">
-                  Liquidity
+                  Liquidity / Mc
                 </h5>
               </div>
             </div>
 
-            <TokenList filteredTokens={filteredTokens}/>
+            <TokenList filteredTokens={filteredTokens} address={address} />
           </div>
         </>
       ) : (
