@@ -268,7 +268,7 @@ func bridgeSupply(config *Config) error {
 
 	for _, destinationChain := range config.DestinationChains {
 		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, destinationChain))
-		cmd := exec.Command("hyperlane", "warp", "send", "--warp", yamlPath, "--origin", config.SourceChain, "--destination", destinationChain, "--yes", "--amount", config.ChainSupply, "--key", config.OwnerPrivateKey)
+		cmd := exec.Command("hyperlane", "warp", "send", "--warp", yamlPath, "--origin", config.SourceChain, "--destination", destinationChain, "--yes", "--amount", config.ChainSupply+strings.Repeat("0", 18), "--key", config.OwnerPrivateKey)
 		var outputBuffer strings.Builder
 		cmd.Stdout = &outputBuffer
 		cmd.Stderr = &outputBuffer
