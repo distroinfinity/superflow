@@ -16,6 +16,8 @@ type Config struct {
 	TokenName         string
 	TokenSymbol       string
 	InitialSupply     string
+	QuoteTokenAmount  string
+	PoolFee           string
 }
 
 type TemplateData struct {
@@ -72,5 +74,12 @@ func main() {
 	err = bridgeSupply(config)
 	if err != nil {
 		os.Exit(1)
+	}
+
+	for _, destinationChain := range config.DestinationChains {
+		err = createLiquidityPool(config, destinationChain)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create liquidity pool for %s: %v\n", destinationChain, err)
+		}
 	}
 }

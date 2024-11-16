@@ -49,6 +49,10 @@ func loadConfig(filePath string) (*Config, error) {
 			config.TokenSymbol = value
 		case "InitialSupply":
 			config.InitialSupply = value
+		case "QuoteTokenAmount":
+			config.QuoteTokenAmount = value
+		case "PoolFee":
+			config.PoolFee = value
 		}
 	}
 
@@ -56,7 +60,7 @@ func loadConfig(filePath string) (*Config, error) {
 		return nil, err
 	}
 
-	if config.OwnerAddress == "" || config.SourceChain == "" || config.OwnerPrivateKey == "" || config.ChainSupply == "" || config.TokenName == "" || config.TokenSymbol == "" || config.InitialSupply == "" {
+	if config.OwnerAddress == "" || config.SourceChain == "" || config.OwnerPrivateKey == "" || config.ChainSupply == "" || config.TokenName == "" || config.TokenSymbol == "" || config.InitialSupply == "" || config.QuoteTokenAmount == "" || config.PoolFee == "" {
 		return nil, fmt.Errorf("all config inputs are required")
 	}
 
