@@ -130,7 +130,7 @@ INITIAL_SUPPLY=%s
 		return err
 	}
 
-	envPath := filepath.Join(gitRoot, "hyperlane", "scripts", ".env")
+	envPath := filepath.Join(gitRoot, ".env")
 	err = os.WriteFile(envPath, []byte(envContent), 0644)
 	if err != nil {
 		return err
@@ -296,3 +296,16 @@ func bridgeSupply(config *Config) error {
 
 	return nil
 }
+
+// to uniswap
+
+// tokenaddress
+// Initial Supply - Amount 1
+// stable token address
+// Base Quote - Amount 2
+// swap fees (default = 0.3) configurable
+
+/* uniswap specific */
+// npm ca address
+// factory address
+// chain id from matrix
