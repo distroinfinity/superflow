@@ -170,13 +170,7 @@ INITIAL_SUPPLY=%s
 }
 
 func generateYamlTemplate(config *Config, mailboxes map[string]string) (string, error) {
-	templateFilePath := "./warp-template.tpl"
-	tplContent, err := os.ReadFile(templateFilePath)
-	if err != nil {
-		return "", err
-	}
-
-	tmpl, err := template.New("yamlTemplate").Parse(string(tplContent))
+	tmpl, err := template.New("yamlTemplate").Parse(warpTemplate)
 	if err != nil {
 		return "", err
 	}
@@ -269,7 +263,7 @@ func bridgeSupply(config *Config) error {
 	}
 
 	for _, destinationChain := range config.DestinationChains {
-		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/USDC", fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, destinationChain))
+		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, destinationChain))
 		cmd := exec.Command("hyperlane", "warp", "send", "--warp", yamlPath, "--origin", config.SourceChain, "--destination", destinationChain, "--yes", "--amount", config.ChainSupply, "--key", config.OwnerPrivateKey)
 		var outputBuffer strings.Builder
 		cmd.Stdout = &outputBuffer

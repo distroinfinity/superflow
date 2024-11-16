@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 )
@@ -24,6 +25,9 @@ type TemplateData struct {
 	TokenAddress string
 	Type         string
 }
+
+//go:embed warp-template.tpl
+var warpTemplate string
 
 func main() {
 	configPath := "./config.txt"
