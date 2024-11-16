@@ -63,28 +63,28 @@ const getChildren = (tokenId: string) => {
   const childrenData = [
     {
       chain: SupportedChains.ARB,
-      circulatingSupply: 1000000,
+      circulatingSupply: 250000,
       price: 1.3,
       pairAddress: "0x1234567890",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.MANTLE,
-      circulatingSupply: 1000000,
+      circulatingSupply: 250000,
       price: 1.3,
       pairAddress: "0x1234567890",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.BASE,
-      circulatingSupply: 1000000,
+      circulatingSupply: 250000,
       price: 1.3,
       pairAddress: "0x8470820830",
       liquidity: 1000000,
     },
     {
       chain: SupportedChains.ETH,
-      circulatingSupply: 1000000,
+      circulatingSupply: 250000,
       price: 1.3,
       pairAddress: "0x2930020930",
       liquidity: 1000000,
@@ -130,14 +130,13 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens, address }) => {
 
           // Fetch children for the current token
           const children = getChildren(token.content.metadata.name);
-          const childrenCount = children.length;
 
           // Calculate dynamic height based on the number of children
           const expandedHeight = isExpanded ? "calc(100%)" : "auto";
 
           return (
             <div
-              className={`grid grid-cols-3 sm:grid-cols-4 ${
+              className={`grid grid-cols-3 sm:grid-cols-3 ${
                 key === filteredTokens.length - 1
                   ? ""
                   : "border-b border-stroke dark:border-strokedark"
@@ -165,9 +164,6 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens, address }) => {
               </div>
 
               <div className="flex items-center justify-center p-2.5 xl:p-5">
-                <p className="text-black dark:text-white">{""}</p>
-              </div>
-              <div className="flex items-center justify-center p-2.5 xl:p-5">
                 <p className="text-black dark:text-white">
                   {formatNumber(balance)} {symbol}
                 </p>
@@ -183,7 +179,7 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens, address }) => {
                   {children.map((child) => (
                     <div
                       key={child.id}
-                      className="grid grid-cols-4 items-center gap-4 border-b p-2 last:border-none dark:border-strokedark"
+                      className="grid grid-cols-3 items-center gap-4 border-b p-2 last:border-none dark:border-strokedark"
                     >
                       <div className="justify-left flex items-center gap-2 pl-5">
                         <img
@@ -194,16 +190,15 @@ const TokenList: React.FC<TokenListProps> = ({ filteredTokens, address }) => {
                           alt={`${child.chain} logo`}
                         />
                         <p className="text-black dark:text-white">
-                          {child.chain}
+                          {child.chain}{" "}
+                          <a
+                            href={`${explorerUrls[child.chain]}/${formatSlug(child.pairAddress)}/${child.pairAddress}`}
+                            className="text-center text-black hover:underline dark:text-white"
+                          >
+                            {`(${child.pairAddress.slice(0, 3)}...${child.pairAddress.slice(-3)})`}
+                          </a>
                         </p>
                       </div>
-                      <a
-                        href={`${explorerUrls[child.chain]}/${formatSlug(child.pairAddress)}/${child.pairAddress}`}
-                        className="text-center text-black hover:underline dark:text-white"
-                      >
-                        {`${child.pairAddress.slice(0, 3)}...${child.pairAddress.slice(-3)}`}
-                      </a>
-
                       <p className="text-center text-black dark:text-white">
                         {formatNumber(child.circulatingSupply)} {symbol}
                       </p>
