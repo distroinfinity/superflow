@@ -9,23 +9,46 @@ const { ethers: hreEthers } = require("hardhat");
 const { UNISWAP_FACTOR_ABI, UNISWAP_V3_POOL_ABI } = require("./abi.js");
 const { Percent, Token } = require("@uniswap/sdk-core");
 const ERC20_ABI = require("../artifacts/contracts/Token.sol/Token.json").abi;
+// require("dotenv").config();
 
+const token1Info = {
+    arbitrumsepolia : {
+        NonfungiblePositionManager: "0x6b2937Bde17889EDCf8fbD8dE31C3C2a70Bc4d65",
+        UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e",
+        token1Address: "0xFE8348081Fe38B20ECd971c708a8471F4Dc88D09"
+    },
+    basesepolia: {
+        NonfungiblePositionManager: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
+        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
+        token1Address:"0x65AC665a2E700A7D53ec16c864D92cebb8926635"
+    },
+    optimismsepolia: {
+        NonfungiblePositionManager: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
+        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
+        token1Address: "0x65AC665a2E700A7D53ec16c864D92cebb8926635"
+    },
+    alfajores: {
+        NonfungiblePositionManager: "",
+        UniswapV3Factory: "",
+        token1Address: ""
+    },
+}
 
-// WDS / YT --amount 1000000000000000000000
 async function main() {
-    var token0Address = "0x5c7D14aAD3475073D64A02629Df2C53DA56441aF"; // tge token
-    var token1Address = "0x65AC665a2E700A7D53ec16c864D92cebb8926635"; // collateral token
+    var token0Address = process.env.BASETOKEN; // tge token
+    var token1Address = token1Info[process.env.CHAIN_NAME].token1Address; // collateral token TODO: MANU
     // (0.05, 0.3, 1, 0.01)
-    var fee = (0.3) * 10000;
+    var fee = (process.env.POOL_FEE) * 1000;
     var token0Decimals = 18;
     var token1Decimals = 18;
 
     var price = encodePriceSqrt(1, 1);
-    var npmca = "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2";                       // NonfungiblePositionManager
-    var uniswapFactoryAddress = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";       // UniswapV3Factory
-    var amount0 = ethers.utils.parseUnits('100', 18);
-    var amount1 = ethers.utils.parseUnits('100', 18);
-    var chainID = 84532;
+    // TODO : MANU
+    var npmca = token1Info[process.env.CHAIN_NAME].NonfungiblePositionManager;             // NonfungiblePositionManager
+    var uniswapFactoryAddress = token1Info[process.env.CHAIN_NAME].UniswapV3Factory;       // UniswapV3Factory
+    var amount0 = ethers.utils.parseUnits(process.env.BASETOKEN_AMOUNT.toString(), 18);
+    var amount1 = ethers.utils.parseUnits(process.env.QUOTE_TOKEN_AMOUNT.toString(), 18);
+    var chainID = Number(process.env.CHAINID)
 
     console.log("Started");
     const uniswapFactoryContract = await getContract(uniswapFactoryAddress, UNISWAP_FACTOR_ABI);
