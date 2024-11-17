@@ -58,14 +58,14 @@ async function main() {
     await mintAndApprove(amount0, amount1, token0Address, token1Address, npmca);
 
     var poolAddress = await uniswapFactoryContract.getPool(token0Address, token1Address, fee);
-    console.log(poolAddress);
     var deployer = await hreEthers.getSigner();
     if (poolAddress === '0x0000000000000000000000000000000000000000') {
         // console.log("Creating pool");
         poolAddress = await createPool(uniswapFactoryContract, token0Address, token1Address, fee);
-
+        
         await initializePool(poolAddress, price, deployer);
     }
+    console.log(poolAddress);
     await addLiquidityToPool(poolAddress, deployer, chainID, token0Decimals, token1Decimals, token0, token1, amount0, amount1, fee, npmca);
     // console.log("Added liquidity");
 

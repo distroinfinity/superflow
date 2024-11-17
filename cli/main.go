@@ -6,21 +6,24 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 type Config struct {
-	OwnerAddress      string
-	DestinationChains []string
-	SourceChain       string
-	TokenAddress      string
-	OwnerPrivateKey   string
-	ChainSupply       string
-	TokenName         string
-	TokenSymbol       string
-	InitialSupply     string
-	QuoteTokenAmount  string
-	PoolFee           string
-	PoolAddresses     map[string]string
+	OwnerAddress       string
+	DestinationChains  []string
+	SourceChain        string
+	TokenAddress       string
+	OwnerPrivateKey    string
+	ChainSupply        string
+	TokenName          string
+	TokenSymbol        string
+	InitialSupply      string
+	QuoteTokenAmount   string
+	PoolFee            string
+	BaseTokenAddresses map[string]string
+	PoolAddresses      map[string]string
 }
 
 type TemplateData struct {
@@ -79,6 +82,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	config.BaseTokenAddresses = make(map[string]string)
 	config.PoolAddresses = make(map[string]string)
 
 	for _, destinationChain := range config.DestinationChains {
@@ -115,4 +119,6 @@ func main() {
 		fmt.Printf("Pool Address for %s: %s\n", chain, url)
 		config.PoolAddresses[chain] = url
 	}
+
+	spew.Dump(config)
 }

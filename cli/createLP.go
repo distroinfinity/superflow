@@ -73,6 +73,7 @@ func createLiquidityPool(config *Config, destinationChain string, yamlPath strin
 	if baseTokenAddress == "" {
 		return fmt.Errorf("failed to parse base token address for destination chain")
 	}
+	config.BaseTokenAddresses[destinationChain] = baseTokenAddress
 
 	// Create .env file for deploying liquidity pool
 	envContent := fmt.Sprintf(`RPC_URL=%s
@@ -117,11 +118,16 @@ CHAIN_NAME=%s
 		return err
 	}
 
-	// Store the pool address if the script execution is successful
 	outputLines := strings.Split(outputBuffer.String(), "\n")
-	poolAddress := strings.TrimSpace(outputLines[len(outputLines)-1])
-	config.PoolAddresses[destinationChain] = poolAddress
+	for _, line := range outputLines {
+		parts := strings.Split(line, " ")
+		for _, part := range parts {
+			if strings.HasPrefix(part, "0x") {
+				config.PoolAddresses[destinationChain] = strings.TrimSpace(part)
+			}
+		}
+	}
 
-	fmt.Printf("Liquidity pool successfully created on %s\n", destinationChain)
+	fmt.Printf("Liquidity pool successfully created on %s with address %s\n", destinationChain, config.PoolAddresses[destinationChain])
 	return nil
 }
