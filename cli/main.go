@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -77,7 +79,12 @@ func main() {
 	}
 
 	for _, destinationChain := range config.DestinationChains {
-		err = createLiquidityPool(config, destinationChain)
+		// Parse base token address from YAML file
+		homeDir, _ := os.UserHomeDir()
+
+		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, strings.Join(config.DestinationChains, "-")))
+
+		err = createLiquidityPool(config, destinationChain, yamlPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to create liquidity pool for %s: %v\n", destinationChain, err)
 		}

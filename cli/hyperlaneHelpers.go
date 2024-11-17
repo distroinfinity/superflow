@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -67,6 +68,9 @@ func loadConfig(filePath string) (*Config, error) {
 	if len(config.DestinationChains) == 0 {
 		return nil, fmt.Errorf("at least one DestinationChain is required")
 	}
+
+	// Sorting the slice of strings
+	slices.Sort(config.DestinationChains)
 
 	return &config, nil
 }
@@ -267,8 +271,8 @@ func bridgeSupply(config *Config) error {
 	}
 
 	for _, destinationChain := range config.DestinationChains {
-		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, destinationChain))
-		cmd := exec.Command("hyperlane", "warp", "send", "--warp", yamlPath, "--origin", config.SourceChain, "--destination", destinationChain, "--yes", "--amount", config.ChainSupply+strings.Repeat("0", 18), "--key", config.OwnerPrivateKey)
+		yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, strings.Join(config.DestinationChains, "-")))
+		cmd := exec.Command("hyperlane", "warp", "send", "--warp", yamlPath, "--origin", config.SourceChain, "--destination", destinationChain, "--yes", "--amount", config.ChainSupply+strings.Repeat("0", 18), "--key", config.OwnerPrivateKey, "--timeout", "120")
 		var outputBuffer strings.Builder
 		cmd.Stdout = &outputBuffer
 		cmd.Stderr = &outputBuffer
@@ -291,7 +295,7 @@ func bridgeSupply(config *Config) error {
 			} else {
 				fmt.Printf("Failed to bridge supply to %s. Reason: %s\n", destinationChain, outputStr)
 			}
-			return err
+			continue
 		}
 
 		s.Stop()

@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func createLiquidityPool(config *Config, destinationChain string) error {
+func createLiquidityPool(config *Config, destinationChain string, yamlPath string) error {
 	// Parse chain metadata to get RPC URL and Chain ID
 	metadataUrl := "https://raw.githubusercontent.com/hyperlane-xyz/hyperlane-registry/refs/heads/main/chains/metadata.yaml"
 	response, err := exec.Command("curl", "-s", metadataUrl).Output()
@@ -45,12 +45,6 @@ func createLiquidityPool(config *Config, destinationChain string) error {
 		return fmt.Errorf("failed to parse RPC URL or Chain ID for destination chain")
 	}
 
-	// Parse base token address from YAML file
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	yamlPath := filepath.Join(homeDir, ".hyperlane/deployments/warp_routes/", config.TokenSymbol, fmt.Sprintf("%s-%s-config.yaml", config.SourceChain, destinationChain))
 	yamlContent, err := os.ReadFile(yamlPath)
 	if err != nil {
 		return err
