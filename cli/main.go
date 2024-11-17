@@ -79,6 +79,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	config.PoolAddresses = make(map[string]string)
+
 	for _, destinationChain := range config.DestinationChains {
 		// Parse base token address from YAML file
 		homeDir, _ := os.UserHomeDir()
@@ -91,5 +93,26 @@ func main() {
 		}
 	}
 
-	fmt.Println(config.PoolAddresses)
+	// Parse and print Pool Addresses with URLs
+	for chain, address := range config.PoolAddresses {
+		url := ""
+		switch chain {
+		case "arbitrumsepolia":
+			url = fmt.Sprintf("https://sepolia-explorer.arbitrum.io/address/%s", address)
+		case "basesepolia":
+			url = fmt.Sprintf("https://base-sepolia.blockscout.com/address/%s", address)
+		case "optimismsepolia":
+			url = fmt.Sprintf("https://optimism-sepolia.blockscout.com/address/%s", address)
+		case "celo":
+			url = fmt.Sprintf("https://celo-alfajores.blockscout.com/address/%s", address)
+		case "unichain":
+			url = fmt.Sprintf("https://unichain.blockscout.com/address/%s", address)
+		case "mantle":
+			url = fmt.Sprintf("https://sepolia.mantlescan.xyz/address/%s", address)
+		default:
+			url = address
+		}
+		fmt.Printf("Pool Address for %s: %s\n", chain, url)
+		config.PoolAddresses[chain] = url
+	}
 }
