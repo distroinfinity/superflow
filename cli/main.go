@@ -20,6 +20,7 @@ type Config struct {
 	InitialSupply     string
 	QuoteTokenAmount  string
 	PoolFee           string
+	PoolAddresses     map[string]string
 }
 
 type TemplateData struct {
@@ -89,4 +90,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Failed to create liquidity pool for %s: %v\n", destinationChain, err)
 		}
 	}
+
+	fmt.Println(config.PoolAddresses)
 }

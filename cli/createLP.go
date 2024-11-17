@@ -111,11 +111,16 @@ CHAIN_NAME=%s
 	err = cmd.Run()
 	s.Stop()
 	if err != nil {
-		fmt.Println("Failed to execute liquidity pool deployment script:", err)
-		fmt.Println(outputBuffer.String())
-		fmt.Println("failed to execute liquidity pool deployment script")
-		os.Exit(1)
+		// fmt.Println("Failed to execute liquidity pool deployment script:", err)
+		// fmt.Println(outputBuffer.String())
+		// fmt.Println("failed to execute liquidity pool deployment script")
+		return err
 	}
+
+	// Store the pool address if the script execution is successful
+	outputLines := strings.Split(outputBuffer.String(), "\n")
+	poolAddress := strings.TrimSpace(outputLines[len(outputLines)-1])
+	config.PoolAddresses[destinationChain] = poolAddress
 
 	fmt.Printf("Liquidity pool successfully created on %s\n", destinationChain)
 	return nil
