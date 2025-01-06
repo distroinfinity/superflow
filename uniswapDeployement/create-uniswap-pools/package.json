@@ -28,8 +28,8 @@
     "bignumber.js": "^9.1.2"
   },
   "scripts": {
-    "deploytokens": "npx hardhat run scripts/deployToken.js --network ethSepolia",
-    "createpools": "npx hardhat run scripts/createUniswapPools.js --network ethSepolia",
+    "deploytokens": "npx hardhat run scripts/deployToken.js --network celo",
+    "createpools": "npx hardhat run scripts/createUniswapPools.js --network celo",
     "calculateSqrtPrice": "npx hardhat run scripts/sqrtPrice96.js"
   }
 }

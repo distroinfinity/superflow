@@ -373,9 +373,7 @@ async function deployToken() {
 
   const factory = new ethers.ContractFactory(abi, bytecode.object, wallet);
 
-  const contract = await factory.deploy(name, symbol, initialSupply, {
-    gasLimit: 30000000, 
-  });
+  const contract = await factory.deploy(name, symbol, initialSupply);
 
   await contract.waitForDeployment();
   console.log(contract.target);

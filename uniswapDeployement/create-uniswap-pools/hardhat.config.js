@@ -11,7 +11,7 @@ require("solidity-coverage");
 module.exports = {
   solidity: "0.8.21",
   networks: {
-    ethSepolia: {
+   celo: {
       url: process.env.RPC_URL,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
