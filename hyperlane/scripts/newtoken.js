@@ -1,14 +1,27 @@
 const { ethers } = require("ethers");
-require("dotenv").config();
+const prompt = require("prompt-sync")();
 
-function getDeploymentConfig() {
+
+async function getDeploymentConfig() {
+
+   // Prompt user for inputs
+   const rpcUrl = prompt("Enter the RPC URL: ");
+   console.log(" ");
+   const privateKey = prompt("Enter your private key: ");
+   console.log(" ")
+   const name = prompt("Enter the token name: ");
+   console.log(" ")
+   const symbol = prompt("Enter the token symbol: ");
+   console.log(" ")
+   const initialSupply = prompt("Enter the initial supply (e.g., 1000): ");
+
   return {
-    rpcUrl: process.env.RPC_URL,
-    privateKey: process.env.PRIVATE_KEY,
+    rpcUrl,
+    privateKey,
     tokenMetadata: {
-      name: process.env.TOKEN_NAME,
-      symbol: process.env.TOKEN_SYMBOL,
-      initialSupply: ethers.parseUnits(process.env.INITIAL_SUPPLY, 18),
+      name,
+      symbol,
+      initialSupply: ethers.parseUnits(initialSupply, 18), // Convert to smallest units
     },
     contractData: {
       abi: [
@@ -373,9 +386,7 @@ async function deployToken() {
 
   const factory = new ethers.ContractFactory(abi, bytecode.object, wallet);
 
-  const contract = await factory.deploy(name, symbol, initialSupply, {
-    gasLimit: 30000000, 
-  });
+  const contract = await factory.deploy(name, symbol, initialSupply);
 
   await contract.waitForDeployment();
   console.log(contract.target);

@@ -1,39 +1,108 @@
-# SUPERFLOW
+# Superflow
 
-Superflow is built to solve and ease out the process of Token Generation events and later bridging and deploying liquidity pools of those tokens across multiple chains. 
+Superflow is an all-in-one solution designed to simplify and automate the complex processes involved in Token Generation Events (TGE) and post-TGE workflows on the **Celo blockchain**. It empowers users to deploy ERC-20 tokens, bridge them across supported blockchains, and create liquidity pools (LPs) on decentralized exchanges—all with a single command.
 
-Usually a normal process for TGE and Post TGE looks something like this: 
+By abstracting the traditionally disjointed steps, Superflow streamlines the entire lifecycle, from token deployment to liquidity provisioning, ensuring efficiency, consistency, and ease of use.
 
-1. Deploying ERC20 on one chain, for most projects, its Ethereum Mainnet for security and trust.
-2. Bridge tokens to multiple chains of interest, for example, Arbitrum, Base, Celo, Unichain, etc., or whichever chain they want their token to be present in the LP pool of that chain, Uniswap on Arbitrum or Aerdrome on Base.
-3. Actually creating a liquidity pool of the bridged token and the respective destination chains and providing liquidity in that pool.
+---
 
-   
-Superflow is built to automate the above-mentioned disjoint and time-consuming steps with one click.  
-With Superflow, you provide the necessary information, like the origin chain, total supply, and other metadata of the token, which all chains they want to bridge their tokens to, and how much of the total supply they want to bridge and put in the LP pool for that chain.   
+## Key Features
 
-With all this info collected beforehand, Superflow will do all the actions mentioned above for you, and you'll have the deployment result, like the LP Pool address of each destination chain, etc., as the end result.
-All of the steps from token generation to bridging to creating an LP pair and providing liquidity abstracted for you under the hood. 
+- **Token Generation**: Deploy ERC-20 tokens effortlessly on the Celo blockchain with pre-configured metadata and total supply.
+- **Cross-Chain Bridging**: Automatically bridge tokens to other chains of interest, such as Ethereum Mainnet, Arbitrum, and Base, using Hyperlane warp routes.
+- **Liquidity Provisioning**: Create and deploy LP pools on DEXs like Uniswap and Aerodrome, enabling seamless token liquidity on Celo and bridged chains.
+- **Automation**: All steps—token deployment, bridging, and LP provisioning—are handled in a single containerized CLI command.
+- **End-to-End Abstraction**: Receive deployment results, such as LP pool addresses, without worrying about the underlying complexity.
 
-That's Superflow!
+---
 
-## How its made
+## Repository Structure
 
-Superflow is a containerised cli solution that automates all the logic for you. The end result is a docker image that you run by executing a single docker command. 
+The repository is structured to keep the logic modular and maintainable:
 
-Under the hood the different individual steps are automated with JS and Go scripts.
+### `cli/`
+Contains the core command-line interface scripts that drive the Superflow solution. These scripts allow users to pass required token metadata, bridging configurations, and liquidity parameters for the automation process.
 
-- Token generation happen through a JS script.
-- Bridging the token after creation is done using hyperlane warp routes.
--We generate warp routes for the newly deployed token connecting the parent and destination chains of interests.
-- Bridging of token is handled via hyperlane cli. The whole logic of working with the cli is abstracted with go scripts and shipped in the container image.
-- Finally the deployement of LP pools happen via JS scripts again and this step is also part of the docker image and shipped in it.
- 
-## Deployer Address:
+### `hyperlane/`
+Includes scripts and configurations to handle cross-chain bridging of tokens using Hyperlane warp routes. It generates and manages routes to connect the Celo blockchain with other destination chains.
 
-The deployer address used to deploy warp routes and several other tokens on each chain are:
-- 0xfb01313Ef6FC6e683d1408E98c93B19d9C16F1BB
-- 0xd799db5dF493C7c03D70a14e78462F5Dfaa0f063
+### `uniswap_deployment/`
+Houses scripts for creating and managing liquidity pools on DEXs like Uniswap for the deployed and bridged tokens.
 
+### Key Script Files:
+- **`newToken.js`**: Automates the deployment of a new ERC-20 token on the Celo blockchain.
+- **`createUniswapPools.js`**: Facilitates the creation of liquidity pools for the deployed token on DEXs across bridged chains.
 
+---
 
+## Getting Started
+
+### Prerequisites
+
+1. **Node.js** (v14 or higher) and npm/yarn.
+2. **Docker**: Ensure Docker is installed and running on your machine.
+3. **Hyperlane CLI**: Required for bridging tokens.
+4. **Environment Configuration**: Create a `.env` file with the necessary API keys, deployer addresses, and configurations.
+
+---
+
+## Contributing
+
+We welcome contributions to Superflow! To maintain consistency and ensure quality, please follow the guidelines below when contributing to the project:
+
+### Steps to Contribute
+
+1. **Fork the Repository**  
+   - Click the **Fork** button on the repository page to create your copy of the project.
+
+2. **Clone the Forked Repository**  
+   - Clone your fork to your local machine:  
+     ```bash
+     git clone https://github.com/your-username/superflow.git
+     cd superflow
+     ```
+
+3. **Create a Feature Branch**  
+   - Use a descriptive branch name that reflects your changes:  
+     ```bash
+     git checkout -b feature/your-feature-name
+     ```
+
+4. **Make Changes**  
+   - Edit the codebase to implement your feature or fix the issue. Ensure your changes follow the coding standards used in the repository.
+
+5. **Test Your Changes**  
+   - Run all tests to ensure that your changes do not break existing functionality:  
+     ```bash
+     npm test
+     ```
+
+6. **Commit Your Changes**  
+   - Write clear and descriptive commit messages:  
+     ```bash
+     git add .
+     git commit -m "Add a brief description of your changes"
+     ```
+
+7. **Push to Your Fork**  
+   - Push the changes to your forked repository:  
+     ```bash
+     git push origin feature/your-feature-name
+     ```
+
+8. **Open a Pull Request**  
+   - Navigate to the original repository and click on **Pull Requests**.  
+   - Submit a pull request with a clear title and description of your changes.
+
+---
+
+### Guidelines for Contributions
+
+- **Follow the Code Style**: Ensure your code follows the repository’s coding standards.
+- **Write Tests**: Include tests for your changes wherever applicable.
+- **Stay Modular**: Keep changes modular to make them easier to review and merge.
+- **Update Documentation**: Update the `README.md` or other relevant documentation if your changes impact usage or features.
+
+---
+
+Thank you for contributing to Superflow!
