@@ -3,6 +3,8 @@
 ![1](https://github.com/user-attachments/assets/8d07c141-d9e7-4dca-b26b-1879fd4556dc)
 
 
+Issues and Bounties details: https://scoutgame.xyz/info/partner-rewards/celo
+
 
 Superflow is built to solve and ease out the process of Token Generation events and later bridging and deploying liquidity pools of those tokens across multiple chains. 
 
