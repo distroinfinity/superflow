@@ -75,59 +75,67 @@ func createLiquidityPool(config *Config, destinationChain string, yamlPath strin
 	}
 	config.BaseTokenAddresses[destinationChain] = baseTokenAddress
 
-	// Create .env file for deploying liquidity pool
-	envContent := fmt.Sprintf(`RPC_URL=%s
+
+	gitRoot, err := os.Getwd()
+    if err != nil {
+        return err
+    }
+
+
+	// Create pools for each collateral token
+    for _, collateralToken := range config.CollateralTokens[destinationChain] {
+        // Create .env file for deploying liquidity pool
+        envContent := fmt.Sprintf(`RPC_URL=%s
 PRIVATE_KEY=%s
 BASETOKEN=%s
 BASETOKEN_AMOUNT=%s
+QUOTE_TOKEN=%s
 QUOTE_TOKEN_AMOUNT=%s
 POOL_FEE=%s
 CHAINID=%s
 CHAIN_NAME=%s
-`, rpcUrl, config.OwnerPrivateKey, baseTokenAddress, config.ChainSupply, config.QuoteTokenAmount, config.PoolFee, chainId, destinationChain)
+`, rpcUrl, config.OwnerPrivateKey, baseTokenAddress, config.ChainSupply, 
+           collateralToken.Address, collateralToken.Amount, config.PoolFee, chainId, destinationChain)
 
-	gitRoot, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+        envPath := filepath.Join(gitRoot, "uniswapDeployement", "create-uniswap-pools", ".env")
+        err = os.WriteFile(envPath, []byte(envContent), 0644)
+        if err != nil {
+            return err
+        }
 
-	envPath := filepath.Join(gitRoot, "uniswapDeployement", "create-uniswap-pools", ".env")
-	err = os.WriteFile(envPath, []byte(envContent), 0644)
-	if err != nil {
-		return err
-	}
+        // Execute the deployLP.js script
+        cmd := exec.Command("npm", "run", "createpools")
+        cmd.Dir = filepath.Join(gitRoot, "uniswapDeployement", "create-uniswap-pools")
 
-	// Execute the deployLP.js script
-	cmd := exec.Command("npm", "run", "createpools")
-	cmd.Dir = filepath.Join(gitRoot, "uniswapDeployement", "create-uniswap-pools")
+        var outputBuffer strings.Builder
+        cmd.Stdout = &outputBuffer
+        cmd.Stderr = &outputBuffer
 
-	var outputBuffer strings.Builder
-	cmd.Stdout = &outputBuffer
-	cmd.Stderr = &outputBuffer
+        s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+        s.Suffix = fmt.Sprintf(" Creating Liquidity Pool on %s with collateral %s", destinationChain, collateralToken.Address)
+        s.Start()
 
-	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-	s.Suffix = fmt.Sprintf(" Creating Liquidity Pool on %s", destinationChain)
-	s.Start()
+        err = cmd.Run()
+        s.Stop()
+        if err != nil {
+            return err
+        }
 
-	err = cmd.Run()
-	s.Stop()
-	if err != nil {
-		// fmt.Println("Failed to execute liquidity pool deployment script:", err)
-		// fmt.Println(outputBuffer.String())
-		// fmt.Println("failed to execute liquidity pool deployment script")
-		return err
-	}
+        // Parse pool address from output
+        outputLines := strings.Split(outputBuffer.String(), "\n")
+        for _, line := range outputLines {
+            parts := strings.Split(line, " ")
+            for _, part := range parts {
+                if strings.HasPrefix(part, "0x") {
+                    config.PoolAddresses[destinationChain][collateralToken.Address] = strings.TrimSpace(part)
+                }
+            }
+        }
 
-	outputLines := strings.Split(outputBuffer.String(), "\n")
-	for _, line := range outputLines {
-		parts := strings.Split(line, " ")
-		for _, part := range parts {
-			if strings.HasPrefix(part, "0x") {
-				config.PoolAddresses[destinationChain] = strings.TrimSpace(part)
-			}
-		}
-	}
+        fmt.Printf("Liquidity pool successfully created on %s with collateral %s at address %s\n", 
+            destinationChain, collateralToken.Address, 
+            config.PoolAddresses[destinationChain][collateralToken.Address])
+    }
 
-	fmt.Printf("Liquidity pool successfully created on %s with address %s\n", destinationChain, config.PoolAddresses[destinationChain])
-	return nil
+    return nil
 }
