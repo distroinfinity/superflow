@@ -14,29 +14,29 @@ const ERC20_ABI = require("../artifacts/contracts/Token.sol/Token.json").abi;
 const token1Info = {
     arbitrumsepolia : {
         NonfungiblePositionManager: "0x6b2937Bde17889EDCf8fbD8dE31C3C2a70Bc4d65",
-        UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e",
-        token1Address: "0xFE8348081Fe38B20ECd971c708a8471F4Dc88D09"
+        UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e",        
     },
     basesepolia: {
         NonfungiblePositionManager: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
-        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
-        token1Address:"0x65AC665a2E700A7D53ec16c864D92cebb8926635"
+        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",        
+    },
+    celo: {
+        NonfungiblePositionManager: "0x6b2937Bde17889EDCf8fbD8dE31C3C2a70Bc4d65",
+        UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e"
     },
     optimismsepolia: {
         NonfungiblePositionManager: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
-        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
-        token1Address: "0x65AC665a2E700A7D53ec16c864D92cebb8926635"
+        UniswapV3Factory: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",        
     },
     alfajores: {
         NonfungiblePositionManager: "",
-        UniswapV3Factory: "",
-        token1Address: ""
+        UniswapV3Factory: "",        
     },
 }
 
 async function main() {
     var token0Address = process.env.BASETOKEN; // tge token
-    var token1Address = token1Info[process.env.CHAIN_NAME].token1Address; // collateral token TODO: MANU
+    const token1Address = process.env.QUOTE_TOKEN; // collateral token TODO: MANU
     // (0.05, 0.3, 1, 0.01)
     var fee = (process.env.POOL_FEE) * 1000;
     var token0Decimals = 18;
@@ -61,8 +61,7 @@ async function main() {
     var deployer = await hreEthers.getSigner();
     if (poolAddress === '0x0000000000000000000000000000000000000000') {
         // console.log("Creating pool");
-        poolAddress = await createPool(uniswapFactoryContract, token0Address, token1Address, fee);
-        
+        poolAddress = await createPool(uniswapFactoryContract, token0Address, token1Address, fee);        
         await initializePool(poolAddress, price, deployer);
     }
     console.log(poolAddress);

@@ -17,62 +17,109 @@ import (
 )
 
 func loadConfig(filePath string) (*Config, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+    file, err := os.Open(filePath)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
 
-	var config Config
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fields := strings.SplitN(line, "=", 2)
-		if len(fields) != 2 {
-			continue
-		}
-		key, value := fields[0], fields[1]
+    var config Config
+    config.CollateralTokens = make(map[string][]CollateralToken)
+    config.BaseTokenAddresses = make(map[string]string)
+    config.PoolAddresses = make(map[string]map[string]string)
 
-		switch key {
-		case "OwnerAddress":
-			config.OwnerAddress = value
-		case "SourceChain":
-			config.SourceChain = value
-		case "OwnerPrivateKey":
-			config.OwnerPrivateKey = value
-		case "DestinationChain":
-			config.DestinationChains = append(config.DestinationChains, value)
-		case "ChainSupply":
-			config.ChainSupply = value
-		case "TokenName":
-			config.TokenName = value
-		case "TokenSymbol":
-			config.TokenSymbol = value
-		case "InitialSupply":
-			config.InitialSupply = value
-		case "QuoteTokenAmount":
-			config.QuoteTokenAmount = value
-		case "PoolFee":
-			config.PoolFee = value
-		}
-	}
+    scanner := bufio.NewScanner(file)
+    currentChain := ""
 
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
+    for scanner.Scan() {
+        line := scanner.Text()
+        if line == "" {
+            continue
+        }
+        
+        fields := strings.SplitN(line, "=", 2)
+        if len(fields) != 2 {
+            continue
+        }
+        key, value := fields[0], fields[1]
 
-	if config.OwnerAddress == "" || config.SourceChain == "" || config.OwnerPrivateKey == "" || config.ChainSupply == "" || config.TokenName == "" || config.TokenSymbol == "" || config.InitialSupply == "" || config.QuoteTokenAmount == "" || config.PoolFee == "" {
-		return nil, fmt.Errorf("all config inputs are required")
-	}
+        switch {
+			case strings.HasPrefix(key, "CollateralToken_"):
+				parts := strings.Split(key[15:], "_")
+				if len(parts) != 2 {
+					continue
+				}
+				_, field := parts[0], parts[1]  
+				
+				if field == "Chain" {
+					currentChain = value
+					if _, exists := config.CollateralTokens[currentChain]; !exists {
+						config.CollateralTokens[currentChain] = []CollateralToken{}
+					}
+				} else if field == "Address" {
+					config.CollateralTokens[currentChain] = append(
+						config.CollateralTokens[currentChain], 
+						CollateralToken{Address: value, Amount: "0"})
+				} else if field == "Amount" {
+					tokens := config.CollateralTokens[currentChain]
+					if len(tokens) > 0 {
+						lastIdx := len(tokens) - 1
+						tokens[lastIdx].Amount = value
+						config.CollateralTokens[currentChain] = tokens
+					}
+				}
+        case key == "OwnerAddress":
+            config.OwnerAddress = value
+        case key == "SourceChain":
+            config.SourceChain = value
+        case key == "OwnerPrivateKey":
+            config.OwnerPrivateKey = value
+        case key == "DestinationChain":
+            config.DestinationChains = append(config.DestinationChains, value)
+        case key == "ChainSupply":
+            config.ChainSupply = value
+        case key == "TokenName":
+            config.TokenName = value
+        case key == "TokenSymbol":
+            config.TokenSymbol = value
+        case key == "InitialSupply":
+            config.InitialSupply = value
+        case key == "QuoteTokenAmount":
+            config.QuoteTokenAmount = value
+        case key == "PoolFee":
+            config.PoolFee = value
+        }
+    }
 
-	if len(config.DestinationChains) == 0 {
-		return nil, fmt.Errorf("at least one DestinationChain is required")
-	}
+    if err := scanner.Err(); err != nil {
+        return nil, err
+    }
 
-	// Sorting the slice of strings
-	slices.Sort(config.DestinationChains)
+    if config.OwnerAddress == "" || config.SourceChain == "" || config.OwnerPrivateKey == "" || 
+       config.ChainSupply == "" || config.TokenName == "" || config.TokenSymbol == "" || 
+       config.InitialSupply == "" || config.PoolFee == "" {
+        return nil, fmt.Errorf("all config inputs are required")
+    }
 
-	return &config, nil
+    if len(config.DestinationChains) == 0 {
+        return nil, fmt.Errorf("at least one DestinationChain is required")
+    }
+
+    for _, chain := range config.DestinationChains {
+        if len(config.CollateralTokens[chain]) == 0 {
+            return nil, fmt.Errorf("collateral tokens required for chain: %s", chain)
+        }
+    }
+
+    // Initialize pool addresses map
+    for chain := range config.CollateralTokens {
+        config.PoolAddresses[chain] = make(map[string]string)
+    }
+
+    // Sorting the slice of strings
+    slices.Sort(config.DestinationChains)
+
+    return &config, nil
 }
 
 func parseMailboxAddresses() (map[string]string, error) {
