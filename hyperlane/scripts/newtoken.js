@@ -1,14 +1,63 @@
 const { ethers } = require("ethers");
-require("dotenv").config();
+const prompt = require("prompt-sync")();
 
 function getDeploymentConfig() {
+  let rpcUrl, privateKey, name, symbol, initialSupply;
+
+  // Validate RPC URL
+  while (!rpcUrl) {
+    rpcUrl = prompt("Enter the RPC URL: ");
+    if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(rpcUrl)) {
+      console.log("Invalid URL format. Please enter a valid RPC URL.");
+      rpcUrl = null;
+    }
+  }
+
+  // Validate private key
+  while (!privateKey) {
+    privateKey = prompt("Enter your private key: ");
+    
+    // Check if the private key has 64 hexadecimal characters (with or without '0x' prefix)
+    if (!/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
+      console.log("Invalid private key format. Please enter a valid private key.");
+      privateKey = null;
+    }
+  }
+
+  // Validate token name
+  while (!name) {
+    name = prompt("Enter the token name: ");
+    if (name.trim() === "") {
+      console.log("Token name cannot be empty.");
+      name = null;
+    }
+  }
+
+  // Validate token symbol
+  while (!symbol) {
+    symbol = prompt("Enter the token symbol: ");
+    if (symbol.trim() === "") {
+      console.log("Token symbol cannot be empty.");
+      symbol = null;
+    }
+  }
+
+  // Validate initial supply
+  while (!initialSupply) {
+    initialSupply = prompt("Enter the initial supply (e.g., 1000): ");
+    if (!/^\d+$/.test(initialSupply)) {
+      console.log("Invalid supply format. Please enter a valid number.");
+      initialSupply = null;
+    }
+  }
+
   return {
-    rpcUrl: process.env.RPC_URL,
-    privateKey: process.env.PRIVATE_KEY,
+    rpcUrl,
+    privateKey,
     tokenMetadata: {
-      name: process.env.TOKEN_NAME,
-      symbol: process.env.TOKEN_SYMBOL,
-      initialSupply: ethers.parseUnits(process.env.INITIAL_SUPPLY, 18),
+      name,
+      symbol,
+      initialSupply: ethers.parseUnits(initialSupply, 18), // Convert to smallest units
     },
     contractData: {
       abi: [
@@ -373,12 +422,10 @@ async function deployToken() {
 
   const factory = new ethers.ContractFactory(abi, bytecode.object, wallet);
 
-  const contract = await factory.deploy(name, symbol, initialSupply, {
-    gasLimit: 30000000, 
-  });
+  const contract = await factory.deploy(name, symbol, initialSupply);
 
   await contract.waitForDeployment();
-  console.log(contract.target);
+  console.log("Contract deployed at address:", contract.target);
 
   return contract;
 }
