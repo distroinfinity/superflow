@@ -422,7 +422,9 @@ async function deployToken() {
 
   const factory = new ethers.ContractFactory(abi, bytecode.object, wallet);
 
-  const contract = await factory.deploy(name, symbol, initialSupply);
+  const contract = await factory.deploy(name, symbol, initialSupply
+   
+);
 
   await contract.waitForDeployment();
   console.log("Contract deployed at address:", contract.target);
