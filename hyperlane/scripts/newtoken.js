@@ -1,10 +1,13 @@
+require("dotenv").config();
 const { ethers } = require("ethers");
 const prompt = require("prompt-sync")();
 
 function getDeploymentConfig() {
-  let rpcUrl, privateKey, name, symbol, initialSupply;
+  let rpcUrl = process.env.RPC_URL || null;
+  let privateKey = process.env.PRIVATE_KEY || null;
+  let name, symbol, initialSupply;
 
-  // Validate RPC URL
+  // Ask for RPC URL only if not set in .env
   while (!rpcUrl) {
     rpcUrl = prompt("Enter the RPC URL: ");
     if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(rpcUrl)) {
@@ -13,11 +16,9 @@ function getDeploymentConfig() {
     }
   }
 
-  // Validate private key
+  // Ask for private key only if not set in .env
   while (!privateKey) {
     privateKey = prompt("Enter your private key: ");
-    
-    // Check if the private key has 64 hexadecimal characters (with or without '0x' prefix)
     if (!/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
       console.log("Invalid private key format. Please enter a valid private key.");
       privateKey = null;

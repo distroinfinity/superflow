@@ -13,6 +13,7 @@ require("dotenv").config();
 const readline = require('readline');
 
 const token1Info = {
+    //for testing using arbsepolia address.
     celo: {
         NonfungiblePositionManager: "0x6b2937Bde17889EDCf8fbD8dE31C3C2a70Bc4d65",
         UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e"
@@ -20,6 +21,7 @@ const token1Info = {
 };
 
 // Function to validate Ethereum addresses
+
 function isValidAddress(address) {
     return ethers.utils.isAddress(address);
 }
@@ -47,7 +49,7 @@ async function main() {
     try {
         console.log("Prompting user for input...");
 
-        let token0Address, token1Address, fee, baseTokenAmount, quoteTokenAmount, token1Price, token0Price;
+        let token0Address, token1Address, fee, baseTokenAmount, quoteTokenAmount, token1Price, token0Price, token0Decimals, token1Decimals;
 
         // Validate base token address
         do {
@@ -60,6 +62,20 @@ async function main() {
             token1Address = await askQuestion("Enter the collateral token address: ");
             if (!isValidAddress(token1Address)) console.log("Invalid Ethereum address. Please enter a valid address.");
         } while (!isValidAddress(token1Address));
+
+        // Validate token0 decimals (default 18)
+        do {
+            let input = await askQuestion("Enter the decimals for base token (default 18): ");
+            token0Decimals = input === "" ? 18 : parseInt(input);
+            if (!isValidNumber(token0Decimals)) console.log("Invalid decimals. Please enter a positive number.");
+        } while (!isValidNumber(token0Decimals));
+
+        // Validate token1 decimals (default 18)
+        do {
+            let input = await askQuestion("Enter the decimals for collateral token (default 18): ");
+            token1Decimals = input === "" ? 18 : parseInt(input);
+            if (!isValidNumber(token1Decimals)) console.log("Invalid decimals. Please enter a positive number.");
+        } while (!isValidNumber(token1Decimals));
 
         // Validate pool fee
         do {
@@ -96,13 +112,11 @@ async function main() {
         rl.close();
 
         const price = encodePriceSqrt(token1Price, token0Price);
-        const token0Decimals = 18;
-        const token1Decimals = 18;
 
         const npmca = token1Info.celo.NonfungiblePositionManager;
         const uniswapFactoryAddress = token1Info.celo.UniswapV3Factory;
-        const amount0 = ethers.utils.parseUnits(baseTokenAmount.toString(), 18);
-        const amount1 = ethers.utils.parseUnits(quoteTokenAmount.toString(), 18);
+        const amount0 = ethers.utils.parseUnits(baseTokenAmount.toString(), token0Decimals);
+        const amount1 = ethers.utils.parseUnits(quoteTokenAmount.toString(), token1Decimals);
 
         // Chain ID can be configured
         const chainID = 421614;
@@ -112,7 +126,7 @@ async function main() {
         const token0 = await getContract(token0Address, ERC20_ABI);
         console.log("Getting token contracts...");
         const token1 = await getContract(token1Address, ERC20_ABI);
- 
+
         console.log(`Token0 Contract Address: ${token0.address}`);
         console.log(`Token1 Contract Address: ${token1.address}`);
 
