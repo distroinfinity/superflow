@@ -47,7 +47,11 @@ async function main() {
     const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
 
     try {
-        console.log("Prompting user for input...");
+        const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);  // Use the RPC URL from .env
+        const network = await provider.getNetwork();
+        const chainID = network.chainId;  // Fetch dynamic chainId
+
+        console.log(`Connected to chain ID: ${chainID}`);
 
         let token0Address, token1Address, fee, baseTokenAmount, quoteTokenAmount, token1Price, token0Price, token0Decimals, token1Decimals;
 
@@ -118,9 +122,6 @@ async function main() {
         const amount0 = ethers.utils.parseUnits(baseTokenAmount.toString(), token0Decimals);
         const amount1 = ethers.utils.parseUnits(quoteTokenAmount.toString(), token1Decimals);
 
-        // Chain ID can be configured
-        const chainID = 421614;
-
         console.log("Getting Uniswap factory contract...");
         const uniswapFactoryContract = await getContract(uniswapFactoryAddress, UNISWAP_FACTOR_ABI);
         const token0 = await getContract(token0Address, ERC20_ABI);
@@ -153,6 +154,7 @@ async function main() {
         console.error("Error occurred during execution:", error.message || error);
     }
 }
+
 
 function encodePriceSqrt(token1Price, token0Price) {
     return encodeSqrtRatioX96(token1Price, token0Price);
@@ -298,9 +300,7 @@ async function addLiquidityToPool(
         console.log("Fetching token allowances...");
         const allowance0 = await token_contract1.allowance(deployer.address, npmca);
         const allowance1 = await token_contract2.allowance(deployer.address, npmca);
-        console.log(`Token1 Allowance: ${allowance0.toString()}`);
-        console.log(`Token2 Allowance: ${allowance1.toString()}`);
-
+        
         // Create and send the transaction
         const transaction = {
             data: calldata,
