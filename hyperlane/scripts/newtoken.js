@@ -2,64 +2,64 @@ require("dotenv").config();
 const { ethers } = require("ethers");
 const prompt = require("prompt-sync")();
 
+function logError(errorMessage) {
+  console.error("[ERROR]:", errorMessage);
+}
+
 function getDeploymentConfig() {
-  let rpcUrl = process.env.RPC_URL || null;
-  let privateKey = process.env.PRIVATE_KEY || null;
-  let name, symbol, initialSupply;
+  try {
+    let rpcUrl = process.env.RPC_URL || null;
+    let privateKey = process.env.PRIVATE_KEY || null;
+    let name, symbol, initialSupply;
 
-  // Ask for RPC URL only if not set in .env
-  while (!rpcUrl) {
-    rpcUrl = prompt("Enter the RPC URL: ");
-    if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(rpcUrl)) {
-      console.log("Invalid URL format. Please enter a valid RPC URL.");
-      rpcUrl = null;
+    while (!rpcUrl) {
+      rpcUrl = prompt("Enter the RPC URL: ");
+      if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(rpcUrl)) {
+        logError("Invalid URL format. Please enter a valid RPC URL.");
+        rpcUrl = null;
+      }
     }
-  }
 
-  // Ask for private key only if not set in .env
-  while (!privateKey) {
-    privateKey = prompt("Enter your private key: ");
-    if (!/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
-      console.log("Invalid private key format. Please enter a valid private key.");
-      privateKey = null;
+    while (!privateKey) {
+      privateKey = prompt("Enter your private key: ");
+      if (!/^(0x)?[a-fA-F0-9]{64}$/.test(privateKey)) {
+        logError("Invalid private key format. Please enter a valid private key.");
+        privateKey = null;
+      }
     }
-  }
 
-  // Validate token name
-  while (!name) {
-    name = prompt("Enter the token name: ");
-    if (name.trim() === "") {
-      console.log("Token name cannot be empty.");
-      name = null;
+    while (!name) {
+      name = prompt("Enter the token name: ");
+      if (name.trim() === "") {
+        logError("Token name cannot be empty.");
+        name = null;
+      }
     }
-  }
 
-  // Validate token symbol
-  while (!symbol) {
-    symbol = prompt("Enter the token symbol: ");
-    if (symbol.trim() === "") {
-      console.log("Token symbol cannot be empty.");
-      symbol = null;
+    while (!symbol) {
+      symbol = prompt("Enter the token symbol: ");
+      if (symbol.trim() === "") {
+        logError("Token symbol cannot be empty.");
+        symbol = null;
+      }
     }
-  }
 
-  // Validate initial supply
-  while (!initialSupply) {
-    initialSupply = prompt("Enter the initial supply (e.g., 1000): ");
-    if (!/^\d+$/.test(initialSupply)) {
-      console.log("Invalid supply format. Please enter a valid number.");
-      initialSupply = null;
+    while (!initialSupply) {
+      initialSupply = prompt("Enter the initial supply (e.g., 1000): ");
+      if (!/^\d+$/.test(initialSupply)) {
+        logError("Invalid supply format. Please enter a valid number.");
+        initialSupply = null;
+      }
     }
-  }
 
-  return {
-    rpcUrl,
-    privateKey,
-    tokenMetadata: {
-      name,
-      symbol,
-      initialSupply: ethers.parseUnits(initialSupply, 18), // Convert to smallest units
-    },
+    return {
+      rpcUrl,
+      privateKey,
+      tokenMetadata: {
+        name,
+        symbol,
+        initialSupply: ethers.parseUnits(initialSupply, 18),
+      },
     contractData: {
       abi: [
         {
@@ -411,9 +411,19 @@ function getDeploymentConfig() {
   };
 }
 
-// Deploy the ERC-20 token contract
+catch (error) {
+  logError("Error in getDeploymentConfig: " + error.message);
+  process.exit(1);
+}
+}
+
 async function deployToken() {
+try {
   const config = getDeploymentConfig();
+
+  if (!config.contractData.abi.length || !config.contractData.bytecode) {
+    throw new Error("ABI or Bytecode is missing. Please provide valid contract data.");
+  }
 
   const provider = new ethers.JsonRpcProvider(config.rpcUrl);
   const wallet = new ethers.Wallet(config.privateKey, provider);
@@ -421,22 +431,29 @@ async function deployToken() {
   const { name, symbol, initialSupply } = config.tokenMetadata;
   const { abi, bytecode } = config.contractData;
 
-  const factory = new ethers.ContractFactory(abi, bytecode.object, wallet);
+  const factory = new ethers.ContractFactory(abi, bytecode, wallet);
 
-  const contract = await factory.deploy(name, symbol, initialSupply
-   
-);
-
+  console.log("Deploying contract...");
+  const contract = await factory.deploy(name, symbol, initialSupply);
   await contract.waitForDeployment();
+  
   console.log("Contract deployed at address:", contract.target);
-
   return contract;
+} catch (error) {
+  if (error.message.includes("insufficient funds")) {
+    logError("Deployment failed: Insufficient funds for gas fees. Please fund your wallet.");
+  } else {
+    logError("Error deploying token: " + error.message.split("(")[0]);
+  }
+  process.exit(1);
+}
 }
 
 (async () => {
-  try {
-    await deployToken();
-  } catch (error) {
-    console.error("Error deploying token:", error);
-  }
+try {
+  await deployToken();
+} catch (error) {
+  logError("Unexpected error: " + error.message.split("(")[0]);
+  process.exit(1);
+}
 })();
