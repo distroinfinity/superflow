@@ -45,78 +45,121 @@ async function main() {
     });
 
     const askQuestion = (query) => new Promise((resolve) => rl.question(query, resolve));
+    let chainID;
+    try {
+        const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+        const network = await provider.getNetwork();
+        chainID = network.chainId;
+        console.log(`Connected to chain ID: ${chainID}`);
+    } catch (error) {
+        console.error("Failed to connect to the blockchain:", error.message || error);
+        rl.close();
+        return;
+    }
+
+    let token0Address, token1Address, fee, baseTokenAmount, quoteTokenAmount, token1Price, token0Price, token0Decimals, token1Decimals;
 
     try {
-        const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);  // Use the RPC URL from .env
-        const network = await provider.getNetwork();
-        const chainID = network.chainId;  // Fetch dynamic chainId
-
-        console.log(`Connected to chain ID: ${chainID}`);
-
-        let token0Address, token1Address, fee, baseTokenAmount, quoteTokenAmount, token1Price, token0Price, token0Decimals, token1Decimals;
-
-        // Validate base token address
         do {
             token0Address = await askQuestion("Enter the base token address: ");
             if (!isValidAddress(token0Address)) console.log("Invalid Ethereum address. Please enter a valid address.");
         } while (!isValidAddress(token0Address));
+    } catch (error) {
+        console.error("Error reading base token address:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate collateral token address
+    try {
         do {
             token1Address = await askQuestion("Enter the collateral token address: ");
             if (!isValidAddress(token1Address)) console.log("Invalid Ethereum address. Please enter a valid address.");
         } while (!isValidAddress(token1Address));
+    } catch (error) {
+        console.error("Error reading collateral token address:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate token0 decimals (default 18)
+    try {
         do {
             let input = await askQuestion("Enter the decimals for base token (default 18): ");
             token0Decimals = input === "" ? 18 : parseInt(input);
             if (!isValidNumber(token0Decimals)) console.log("Invalid decimals. Please enter a positive number.");
         } while (!isValidNumber(token0Decimals));
+    } catch (error) {
+        console.error("Error reading base token decimals:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate token1 decimals (default 18)
+    try {
         do {
             let input = await askQuestion("Enter the decimals for collateral token (default 18): ");
             token1Decimals = input === "" ? 18 : parseInt(input);
             if (!isValidNumber(token1Decimals)) console.log("Invalid decimals. Please enter a positive number.");
         } while (!isValidNumber(token1Decimals));
+    } catch (error) {
+        console.error("Error reading collateral token decimals:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate pool fee
+    try {
         do {
-            fee = parseFloat(await askQuestion("Enter the pool fee among these 0.05, 0.3, 1, 0.01 (e.g., 0.05 for 5%): "));
+            fee = parseFloat(await askQuestion("Enter the pool fee among these 0.05, 0.3, 1, 0.01: "));
             if (!isValidFee(fee)) console.log("Invalid fee. Please enter one of: 0.05, 0.3, 1, 0.01");
         } while (!isValidFee(fee));
 
-        fee *= 10000; // Convert fee into proper format
+        fee *= 10000;
+    } catch (error) {
+        console.error("Error reading pool fee:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate base token amount
+    try {
         do {
             baseTokenAmount = await askQuestion("Enter the base token amount: ");
             if (!isValidNumber(baseTokenAmount)) console.log("Invalid amount. Please enter a positive number.");
         } while (!isValidNumber(baseTokenAmount));
+    } catch (error) {
+        console.error("Error reading base token amount:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate quote token amount
+    try {
         do {
             quoteTokenAmount = await askQuestion("Enter the quote token amount: ");
             if (!isValidNumber(quoteTokenAmount)) console.log("Invalid amount. Please enter a positive number.");
         } while (!isValidNumber(quoteTokenAmount));
+    } catch (error) {
+        console.error("Error reading quote token amount:", error.message || error);
+        rl.close();
+        return;
+    }
 
-        // Validate token1 price
+    try {
         do {
-            token1Price = await askQuestion("Enter the price of token1 relative to token0 (e.g., 1.5): ");
+            token1Price = await askQuestion("Enter the price of token1 relative to token0: ");
             if (!isValidNumber(token1Price, true)) console.log("Invalid price. Please enter a positive number.");
         } while (!isValidNumber(token1Price, true));
 
-        // Validate token0 price
         do {
-            token0Price = await askQuestion("Enter the price of token0 relative to token1 (e.g., 1): ");
+            token0Price = await askQuestion("Enter the price of token0 relative to token1: ");
             if (!isValidNumber(token0Price, true)) console.log("Invalid price. Please enter a positive number.");
         } while (!isValidNumber(token0Price, true));
-
+    } catch (error) {
+        console.error("Error reading token prices:", error.message || error);
         rl.close();
+        return;
+    }
 
+    rl.close();
+
+    try {
         const price = encodePriceSqrt(token1Price, token0Price);
-
         const npmca = token1Info.celo.NonfungiblePositionManager;
         const uniswapFactoryAddress = token1Info.celo.UniswapV3Factory;
         const amount0 = ethers.utils.parseUnits(baseTokenAmount.toString(), token0Decimals);
@@ -125,24 +168,18 @@ async function main() {
         console.log("Getting Uniswap factory contract...");
         const uniswapFactoryContract = await getContract(uniswapFactoryAddress, UNISWAP_FACTOR_ABI);
         const token0 = await getContract(token0Address, ERC20_ABI);
-        console.log("Getting token contracts...");
         const token1 = await getContract(token1Address, ERC20_ABI);
-
-        console.log(`Token0 Contract Address: ${token0.address}`);
-        console.log(`Token1 Contract Address: ${token1.address}`);
 
         console.log("Minting and approving tokens...");
         await mintAndApprove(amount0, amount1, token0Address, token1Address, npmca);
 
         console.log("Checking for existing pool...");
         let poolAddress = await uniswapFactoryContract.getPool(token0Address, token1Address, fee);
-        console.log(`Pool Address Before Creation: ${poolAddress}`);
 
         const deployer = await hreEthers.getSigner();
         if (poolAddress === ethers.constants.AddressZero) {
             console.log("Pool does not exist. Creating pool...");
             poolAddress = await createPool(uniswapFactoryContract, token0Address, token1Address, fee);
-            console.log(`Pool Address After Creation: ${poolAddress}`);
             console.log("Initializing pool...");
             await initializePool(poolAddress, price, deployer);
         }
@@ -151,10 +188,9 @@ async function main() {
         await addLiquidityToPool(poolAddress, deployer, chainID, token0Decimals, token1Decimals, token0, token1, amount0, amount1, fee, npmca);
         console.log("Liquidity added successfully.");
     } catch (error) {
-        console.error("Error occurred during execution:", error.message || error);
+        console.error("Error in Uniswap operations:", error.message || error);
     }
 }
-
 
 function encodePriceSqrt(token1Price, token0Price) {
     return encodeSqrtRatioX96(token1Price, token0Price);
