@@ -15,7 +15,7 @@
     "eslint-plugin-promise": "^5.2.0",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.7.2",
-    "hardhat": "^2.22.18",
+    "hardhat": "^2.22.19",
     "hardhat-gas-reporter": "^1.0.9",
     "prettier": "^2.8.8",
     "prettier-plugin-solidity": "^1.2.0",
@@ -28,7 +28,6 @@
     "bignumber.js": "^9.1.2"
   },
   "scripts": {
-    "deploytokens": "npx hardhat run scripts/deployToken.js --network celo",
     "createpools": "npx hardhat run scripts/createUniswapPools.js --network celo",
     "calculateSqrtPrice": "npx hardhat run scripts/sqrtPrice96.js"
   }
