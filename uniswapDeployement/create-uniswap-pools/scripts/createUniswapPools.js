@@ -13,12 +13,22 @@ require("dotenv").config();
 const readline = require('readline');
 
 const token1Info = {
-    //for testing using arbsepolia address.
+    //celo alfajores contract address.
+
     celo: {
+        NonfungiblePositionManager: "0x0eC9d3C06Bc0A472A80085244d897bb604548824",
+        UniswapV3Factory: "0x229Fd76DA9062C1a10eb4193768E192bdEA99572"
+    },
+    //arbSepolia contract address.
+    arbSepolia: {
         NonfungiblePositionManager: "0x6b2937Bde17889EDCf8fbD8dE31C3C2a70Bc4d65",
         UniswapV3Factory: "0x248AB79Bbb9bC29bB72f7Cd42F17e054Fc40188e"
-    },
+    }
+
+    //use token1Info.<chain name> to test on that chain
 };
+
+    
 
 // Function to validate Ethereum addresses
 
