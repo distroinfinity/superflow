@@ -4,7 +4,7 @@
   "description": "A script to deploy an ERC-20 token contract using Ethers.js",
   "main": "newtoken.js",
   "scripts": {
-    "start": "node newtoken.js"
+    "newtoken": "node newtoken.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
