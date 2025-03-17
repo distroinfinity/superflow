@@ -5,7 +5,7 @@ import TokenDeployer from './components/deploytoken';
 function App() {
   return (
     <div className="App">
-    <TokenDeployer/>
+       <TokenDeployer/>
     </div>
   );
 }
