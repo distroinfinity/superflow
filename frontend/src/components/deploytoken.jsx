@@ -351,42 +351,40 @@ const TokenDeployer = () => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [chainId, setChainId] = useState(null);
   const [chainName, setChainName] = useState(null);
-  const [form, setForm] = useState({ name: "", symbol: "", supply: "" });
+  const [form, setForm] = useState({ name: '', symbol: '', supply: '' });
   const [loading, setLoading] = useState(false);
   const [contractAddress, setContractAddress] = useState(null);
   const [explorerUrl, setExplorerUrl] = useState(null);
 
   async function fetchChainData(chainId) {
     try {
-      const response = await fetch(`https://chainid.network/chains.json`);
+      const response = await fetch('https://chainid.network/chains.json');
       const chains = await response.json();
       const chainInfo = chains.find((chain) => chain.chainId === chainId);
       if (chainInfo) {
         setChainName(chainInfo.name);
         setExplorerUrl(chainInfo.explorers?.[0]?.url || null);
       } else {
-        setChainName("Unknown Network");
+        setChainName('Unknown Network');
         setExplorerUrl(null);
       }
     } catch (error) {
-      console.error("Failed to fetch chain data", error);
-      setChainName("Unknown Network");
-      setExplorerUrl(null);
+      console.error('Failed to fetch chain data', error);
     }
   }
 
   async function connectWallet() {
-    if (!window.ethereum) return alert("MetaMask not detected");
+    if (!window.ethereum) return alert('MetaMask not detected');
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
+      const accounts = await provider.send('eth_requestAccounts', []);
       const network = await provider.getNetwork();
       
       setWalletAddress(accounts[0]);
-      setChainId(network.chainId);
+      setChainId(Number(network.chainId));
       fetchChainData(Number(network.chainId));
     } catch (error) {
-      console.error("Wallet connection failed", error);
+      console.error('Wallet connection failed', error);
     }
   }
 
@@ -395,8 +393,8 @@ const TokenDeployer = () => {
   }
 
   async function deployToken() {
-    if (!walletAddress) return alert("Connect wallet first");
-    if (!form.name || !form.symbol || !form.supply) return alert("Fill all fields");
+    if (!walletAddress) return alert('Connect wallet first');
+    if (!form.name || !form.symbol || !form.supply) return alert('Fill all fields');
     setLoading(true);
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -405,48 +403,50 @@ const TokenDeployer = () => {
       const factory = new ethers.ContractFactory(tokenABI, tokenBytecode, signer);
       const contract = await factory.deploy(form.name, form.symbol, ethers.parseUnits(form.supply, 18));
       await contract.waitForDeployment();
-      
+
       setContractAddress(contract.target);
       alert(`Contract deployed at: ${contract.target}`);
     } catch (error) {
-      console.error("Deployment failed", error);
-      alert("Deployment error");
+      console.error('Deployment failed', error);
+      alert('Deployment error: ' + error.message);
     }
     setLoading(false);
   }
 
   useEffect(() => {
     if (window.ethereum) {
-      window.ethereum.on("chainChanged", () => window.location.reload());
+      window.ethereum.on('chainChanged', () => window.location.reload());
     }
   }, []);
 
   return (
     <div className="container">
-      <button onClick={connectWallet} className="connect-button">
-        {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...` : "Connect Wallet"}
-      </button>
-      {walletAddress && chainId && (
-        <p className="chain-info">Connected to {chainName} (Chain ID: {chainId})</p>
-      )}
-      <input name="name" placeholder="Token Name" className="input-field" onChange={handleChange} />
-      <input name="symbol" placeholder="Token Symbol" className="input-field" onChange={handleChange} />
-      <input name="supply" placeholder="Initial Supply" type="number" className="input-field" onChange={handleChange} />
-      <button onClick={deployToken} className="deploy-button" disabled={loading}>
-        {loading ? "Deploying..." : "Deploy Token"}
-      </button>
-      {contractAddress && (
-        <p className="contract-info">
-          Deployed at:  
-          {explorerUrl ? (
-            <a href={`${explorerUrl}/address/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="contract-link">
-              {contractAddress}
-            </a>
-          ) : (
-            contractAddress
-          )}
-        </p>
-      )}
+      <div className="glass-tile">
+        <button onClick={connectWallet} className="connect-button">
+          {walletAddress ? `Connected: ${walletAddress.slice(0, 6)}...` : 'Connect Wallet'}
+        </button>
+        {walletAddress && chainId && (
+          <p className="chain-info">Connected to {chainName} (Chain ID: {chainId})</p>
+        )}
+        <input name="name" placeholder="Token Name" className="input-field" onChange={handleChange} />
+        <input name="symbol" placeholder="Token Symbol" className="input-field" onChange={handleChange} />
+        <input name="supply" placeholder="Initial Supply" type="number" className="input-field" onChange={handleChange} />
+        <button onClick={deployToken} className="deploy-button" disabled={loading}>
+          {loading ? 'Deploying...' : 'Deploy Token'}
+        </button>
+        {contractAddress && (
+          <p className="contract-info">
+            Deployed at: 
+            {explorerUrl ? (
+              <a href={`${explorerUrl}/address/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="contract-link">
+                {contractAddress}
+              </a>
+            ) : (
+              contractAddress
+            )}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
