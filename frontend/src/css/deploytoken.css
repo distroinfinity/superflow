@@ -1,68 +1,78 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f4f6;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: 20px;
-    background-color: #f9fafb;
-  }
-  
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .connect-wallet {
-    background-color: #2563eb;
-    color: white;
-    margin-bottom: 10px;
-  }
-  
-  .connect-wallet:hover {
-    background-color: #1d4ed8;
-  }
-  
-  .input-field {
-    width: 300px;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #d1d5db;
-    border-radius: 5px;
-  }
-  
-  .deploy-button {
-    background-color: #10b981;
-    color: white;
-    margin-top: 10px;
-  }
-  
-  .deploy-button:hover {
-    background-color: #059669;
-  }
-  
-  .contract-address {
-    margin-top: 15px;
-    color: #16a34a;
-  }
-  
-  .contract-address a {
-    color: #2563eb;
-    text-decoration: none;
-  }
-  
-  .contract-address a:hover {
-    text-decoration: underline;
-  }
-  
+  font-family: Arial, sans-serif;
+  background-color: rgb(197, 192, 192);
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.glass-tile {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.connect-wallet {
+  background-color: #2563eb;
+  color: white;
+}
+
+.connect-wallet:hover {
+  background-color: #1d4ed8;
+}
+
+.input-field {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.deploy-button {
+  background-color: #10b981;
+  color: white;
+}
+
+.deploy-button:hover {
+  background-color: #059669;
+}
+
+.contract-address {
+  margin-top: 15px;
+  color: #16a34a;
+}
+
+.contract-address a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.contract-address a:hover {
+  text-decoration: underline;
+}
