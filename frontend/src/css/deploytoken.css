@@ -50,6 +50,7 @@ button {
   width: 300px;
   padding: 10px;
   border: 1px solid #d1d5db;
+  margin-top: 2px;
   border-radius: 5px;
   background-color: rgba(255, 255, 255, 0.5);
 }
