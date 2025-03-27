@@ -52,10 +52,10 @@ The address used to deploy various ERC20 tokens:
 ## Uniswap Contract Address for Celo Alfajores
 
 UniswapV3Factory:
- - 0x229Fd76DA9062C1a10eb4193768E192bdEA99572
+ - 0x229Fd76DA9062C1a10eb4193768E192bdEA99572 [Link](https://alfajores.celoscan.io/address/0x229Fd76DA9062C1a10eb4193768E192bdEA99572)
  
 NonfungiblePositionManager:
- - 0x0eC9d3C06Bc0A472A80085244d897bb604548824 
+ - 0x0eC9d3C06Bc0A472A80085244d897bb604548824 [Link](https://alfajores.celoscan.io/address/0x0eC9d3C06Bc0A472A80085244d897bb604548824)
 
 ## Token and Pool address on Celo testnet
 
