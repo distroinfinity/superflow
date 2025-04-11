@@ -1,14 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
 import TokenDeployer from './components/deploytoken';
-import CreateUniswapPool from './components/deploypools';
-
-
+import { SetupUniswapForm } from './components/deploypools';
 function App() {
   return (
     <div className="App">
       <TokenDeployer/>
-       <CreateUniswapPool/>
+     <SetupUniswapForm/>
+
        
     </div>
   );
